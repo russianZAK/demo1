@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <script th:src="@{/js/script.js}"></script>
+    <title>Login Form</title>
+</head>
+<body>
+<div class="container">
+    <div class="forms">
+        <div class="form login">
+            <span class="title">Login</span>
+
+            <form th:action="@{/login-success}" method="post">
+                <div class="input-field" th:classappend="${error} ? 'error'">
+                    <input type="text" placeholder="Enter your Jira login" name="username" required th:value="${param.username}" />
+                    <i class="uil-user"></i>
+                </div>
+                <div class="input-field" th:classappend="${error} ? 'error'">
+                    <input type="password" class="password" placeholder="Enter your password" name="password" required />
+                    <i class="uil uil-lock icon"></i>
+                    <i class="uil uil-eye-slash showHidePw"></i>
+                </div>
+
+                <div class="input-field button">
+                    <input type="submit" value="Login" />
+                </div>
+
+                <div class="error-message" th:if="${error}">
+                    <p>Invalid username or password!</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

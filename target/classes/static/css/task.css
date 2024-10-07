@@ -1,0 +1,225 @@
+/* Общие стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    align-items: center; /* Вертикальное выравнивание по центру */
+    justify-content: center; /* Горизонтальное выравнивание по центру */
+    background-color: #f4f4f4;
+    height: 100vh; /* Занимаем всю высоту экрана */
+    margin: 0; /* Убираем отступы */
+    overflow-y: auto; /* Позволяем прокрутку страницы */
+}
+
+/* Контейнер */
+.task-form {
+    background: #fff;
+    max-width: 320px; /* Максимальная ширина контейнера */
+    width: 90%; /* Ширина контейнера на мобильных устройствах */
+    padding: 15px; /* Отступы внутри контейнера */
+    border-radius: 8px; /* Скругленные углы */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Тень */
+    position: relative; /* Позволяет использовать absolute для вложенных элементов, если это нужно */
+}
+
+/* Поля ввода */
+.task-form__field {
+    margin-bottom: 8px; /* Уменьшенный отступ между полями */
+    position: relative;
+}
+
+.task-form__input,
+.task-form__textarea {
+    width: 100%;
+    padding: 6px; /* Уменьшенный внутренний отступ */
+    border: 1px solid #ccc; /* Сделаем границу тоньше */
+    border-radius: 4px;
+    font-size: 12px; /* Уменьшенный размер шрифта */
+    outline: none;
+}
+
+#developer-search,
+#tester-search,
+#analyst-search {
+    border: 0px solid #ccc;
+}
+
+.task-form__textarea {
+    overflow: auto; /* Показывать прокрутку для textarea */
+    max-height: 100px; /* Ограничиваем максимальную высоту textarea */
+}
+
+.task-form__input:focus,
+.task-form__textarea:focus {
+    border-color: #4070f4;
+}
+
+/* Кнопка */
+.task-form__submit {
+    background-color: #4070f4;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    padding: 6px; /* Уменьшенные отступы для кнопки */
+    font-size: 12px; /* Уменьшенный размер шрифта */
+}
+
+.task-form__submit:hover {
+    background-color: #265df2;
+}
+
+/* Сообщения об ошибках и успехе */
+.task-form__validation {
+    font-size: 10px; /* Уменьшенный размер шрифта */
+}
+
+.task-form__title {
+    margin-bottom: 8px; /* Уменьшенный отступ */
+    font-size: 1.1em; /* Уменьшенный размер заголовка */
+    color: #333;
+}
+
+/* Выпадающие списки */
+.task-form__dropdown {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 100px; /* Уменьшенная высота выпадающего списка */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: none;
+    position: absolute;
+    background-color: white;
+    width: 100%;
+    z-index: 2; /* Повышение z-index, чтобы выпадающий список всегда был над элементами */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-form__dropdown-item {
+    padding: 6px; /* Уменьшенный отступ для элементов списка */
+    cursor: pointer;
+}
+
+.task-form__dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Выбранные компоненты */
+.task-form__selected-components {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.selected-component {
+    display: inline-block;
+    background-color: #e0e0e0;
+    padding: 4px 6px; /* Уменьшенный отступ */
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.selected-component span {
+    margin-left: 4px;
+    cursor: pointer;
+    color: red;
+}
+
+/* Сообщения */
+.task-form__success-message {
+    margin-top: 8px; /* Уменьшенный отступ */
+    padding: 6px;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+}
+
+.task-form__error-message {
+    margin-top: 8px; /* Уменьшенный отступ */
+    padding: 6px;
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+}
+
+/* Медиазапросы для адаптивности */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; /* Уменьшенные отступы для мобильных устройств */
+    }
+
+    h2 {
+        font-size: 1em; /* Уменьшение размера заголовка для мобильных устройств */
+    }
+
+    .input-field input,
+    .input-field select,
+    .input-field textarea {
+        font-size: 10px; /* Уменьшение размера шрифта для мобильных устройств */
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 8px; /* Ещё меньше отступы для очень маленьких экранов */
+    }
+
+    h2 {
+        font-size: 0.9em; /* Уменьшение размера заголовка для маленьких экранов */
+    }
+
+    .input-field input,
+    .input-field select,
+    .input-field textarea {
+        font-size: 9px; /* Уменьшение размера шрифта для мобильных устройств */
+    }
+}
+
+/* Стили для чекбоксов */
+.task-form__label {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    cursor: pointer;
+    margin-bottom: 8px; /* Уменьшенный отступ */
+}
+
+.task-form__checkbox {
+    appearance: none;
+    width: 16px; /* Размер чекбокса */
+    height: 16px;
+    border: 1px solid #ccc; /* Граница чекбокса */
+    border-radius: 4px;
+    margin-right: 8px; /* Отступ между чекбоксом и текстом */
+    cursor: pointer;
+    position: relative;
+}
+
+.task-form__checkbox:checked {
+    background-color: #4070f4;
+    border-color: #4070f4;
+}
+
+.task-form__checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: white;
+}
+
+/* Ховер эффект для чекбоксов */
+.task-form__checkbox:hover {
+    border-color: #4070f4;
+}
