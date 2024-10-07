@@ -20,7 +20,7 @@
 
         <!-- Поле для Change Request -->
         <div class="task-form__field">
-            <input class="task-form__input" type="text" placeholder="Change Request" name="changeRequest" id="changeRequest" required th:value="${param.changeRequest}" onchange="checkChangeRequest()"/>
+            <input class="task-form__input" type="text" placeholder="Change Request" name="changeRequest" id="changeRequest" th:value="${param.changeRequest}" onchange="checkChangeRequest()"/>
             <span class="task-form__validation" id="cr-validation"></span>
         </div>
 

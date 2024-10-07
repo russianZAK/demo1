@@ -1,26 +1,14 @@
-const container = document.querySelector(".container"),
-    pwShowHide = document.querySelectorAll(".showHidePw"),
-    pwFields = document.querySelectorAll(".password"),
-    signUp = document.querySelector(".signup-link"),
-    login = document.querySelector(".login-link");
+document.addEventListener("DOMContentLoaded", function () {
+    const eyeIcon = document.getElementById("toggle-password");
+    const pwField = document.getElementById("password-field");
 
-// js code to show/hide password and change icon
-pwShowHide.forEach((eyeIcon) => {
     eyeIcon.addEventListener("click", () => {
-        pwFields.forEach((pwField) => {
-            if (pwField.type === "password") {
-                pwField.type = "text";
-
-                pwShowHide.forEach((icon) => {
-                    icon.classList.replace("uil-eye-slash", "uil-eye");
-                });
-            } else {
-                pwField.type = "password";
-
-                pwShowHide.forEach((icon) => {
-                    icon.classList.replace("uil-eye", "uil-eye-slash");
-                });
-            }
-        });
+        if (pwField.type === "password") {
+            pwField.type = "text";
+            eyeIcon.classList.replace("uil-eye-slash", "uil-eye");
+        } else {
+            pwField.type = "password";
+            eyeIcon.classList.replace("uil-eye", "uil-eye-slash");
+        }
     });
 });
