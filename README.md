@@ -5,8 +5,7 @@ import com.atlassian.jira.rest.client.domain.IssueRestClient;
 import com.atlassian.jira.rest.client.RestClientException;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class JiraIssueCreator {
@@ -14,30 +13,20 @@ public class JiraIssueCreator {
     private static final int MAX_RETRIES = 4;
     private static final long INITIAL_RETRY_DELAY_MS = 5000; // Начальная задержка 5 секунд
     private static final long MAX_RETRY_DELAY_MS = 30000; // Максимальная задержка 30 секунд
-    private static final int THREAD_POOL_SIZE = 5; // Количество потоков
 
     public JiraIssueCreator(IssueRestClient issueClient) {
         this.issueClient = issueClient;
     }
 
     public void createSubtasksSequentially(List<IssueInput> subtasks) {
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 
         for (IssueInput subtask : subtasks) {
-            executor.submit(() -> createSubtaskWithRetries(subtask));
+            future = future.thenRunAsync(() -> createSubtaskWithRetries(subtask));
         }
 
-        // Завершение работы ExecutorService
-        executor.shutdown();
-        try {
-            // Ожидание завершения всех задач
-            if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
-                executor.shutdownNow(); // Принудительное завершение, если не все задачи завершились
-            }
-        } catch (InterruptedException e) {
-            executor.shutdownNow();
-            Thread.currentThread().interrupt(); // Восстановление прерывания
-        }
+        // Ожидание завершения всех задач
+        future.join();
     }
 
     private void createSubtaskWithRetries(IssueInput subtask) {
