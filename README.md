@@ -1,55 +1,77 @@
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
+public class JiraIssueCreator {
+    private final IssueRestClient issueClient;
+    private static final int MAX_RETRIES = 4;
+    private static final long INITIAL_RETRY_DELAY_MS = 5000; // Начальная задержка 5 секунд
+    private static final long MAX_RETRY_DELAY_MS = 30000; // Максимальная задержка 30 секунд
 
-public class ConfluenceService {
-    
-    private static final String CONFLUENCE_BASE_URL = "https://your-confluence-instance.atlassian.net/wiki";
-    private static final String USERNAME = "your-username";
-    private static final String API_TOKEN = "your-api-token";
-    
-    private RestTemplate restTemplate = new RestTemplate();
-
-    public String getPageContent(String pageId) {
-        String url = CONFLUENCE_BASE_URL + "/rest/api/content/" + pageId + "?expand=body.storage";
-        
-        HttpHeaders headers = createHeaders();
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+    public JiraIssueCreator(IssueRestClient issueClient) {
+        this.issueClient = issueClient;
     }
 
-    public String createChildPage(String parentPageId, String updatedContent, String newPageTitle) {
-        String url = CONFLUENCE_BASE_URL + "/rest/api/content";
+    public void createSubtasksWithRetry(List<IssueInput> subtasks) {
+        List<CompletableFuture<Void>> futures = subtasks.stream()
+            .map(subtask -> CompletableFuture.runAsync(() -> createSubtaskWithRetries(subtask)))
+            .toList();
 
-        HttpHeaders headers = createHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        String body = "{"
-                + "\"type\": \"page\","
-                + "\"title\": \"" + newPageTitle + "\","
-                + "\"space\": { \"key\": \"SPACE_KEY\" },"
-                + "\"ancestors\": [{ \"id\": \"" + parentPageId + "\" }],"
-                + "\"body\": {"
-                + "\"storage\": {"
-                + "\"value\": \"" + updatedContent + "\","
-                + "\"representation\": \"storage\""
-                + "}"
-                + "}"
-                + "}";
-
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
-
-        return restTemplate.exchange(url, HttpMethod.POST, entity, String.class).getBody();
+        // Ожидание завершения всех задач
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        String auth = USERNAME + ":" + API_TOKEN;
-        String base64Creds = Base64.getEncoder().encodeToString(auth.getBytes());
-        headers.add("Authorization", "Basic " + base64Creds);
-        return headers;
+    private void createSubtaskWithRetries(IssueInput subtask) {
+        int retryCount = 0;
+        long lastRetryDelayMillis = INITIAL_RETRY_DELAY_MS;
+
+        while (retryCount < MAX_RETRIES) {
+            try {
+                // Попытка создать подзадачу
+                issueClient.createIssue(subtask).claim();
+                return; // Успех, выходим из метода
+            } catch (HttpClientErrorException e) {
+                if (e.getStatusCode().value() == 429) {
+                    // Обработка превышения лимита запросов
+                    lastRetryDelayMillis = handleRateLimit(e);
+                } else {
+                    // Обработка других ошибок
+                    handleFailure(e);
+                    return;
+                }
+            } catch (Exception e) {
+                // Обработка других ошибок
+                handleFailure(e);
+                return;
+            }
+
+            retryCount++;
+            try {
+                // Увеличиваем задержку с добавлением джиттера
+                long jitter = (long) (lastRetryDelayMillis * (0.7 + Math.random() * 0.6));
+                TimeUnit.MILLISECONDS.sleep(jitter);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt(); // Восстановление прерывания
+                break; // Выходим из цикла
+            }
+        }
+
+        handleFailure(new Exception("Exceeded maximum retries for creating subtask: " + subtask.getSummary()));
+    }
+
+    private long handleRateLimit(HttpClientErrorException e) {
+        long retryDelayMillis = INITIAL_RETRY_DELAY_MS;
+
+        // Извлечение заголовка Retry-After, если он есть
+        if (e.getResponseHeaders().containsKey("Retry-After")) {
+            String retryAfterValue = e.getResponseHeaders().get("Retry-After").get(0);
+            retryDelayMillis = Long.parseLong(retryAfterValue) * 1000; // Конвертация в миллисекунды
+        } else {
+            // Увеличиваем задержку, если заголовок отсутствует
+            retryDelayMillis = Math.min(2 * retryDelayMillis, MAX_RETRY_DELAY_MS);
+        }
+
+        return retryDelayMillis;
+    }
+
+    private void handleFailure(Exception e) {
+        // Логируем ошибку или выполняем другие действия по обработке неудачи
+        System.err.println("Failed to create subtask: " + e.getMessage());
     }
 }
