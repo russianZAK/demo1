@@ -1,20 +1,43 @@
+
+```
+import com.atlassian.jira.rest.client.domain.IssueInput;
+import com.atlassian.jira.rest.client.domain.IssueRestClient;
+import com.atlassian.jira.rest.client.RestClientException;
+
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public class JiraIssueCreator {
     private final IssueRestClient issueClient;
     private static final int MAX_RETRIES = 4;
     private static final long INITIAL_RETRY_DELAY_MS = 5000; // Начальная задержка 5 секунд
     private static final long MAX_RETRY_DELAY_MS = 30000; // Максимальная задержка 30 секунд
+    private static final int THREAD_POOL_SIZE = 5; // Количество потоков
 
     public JiraIssueCreator(IssueRestClient issueClient) {
         this.issueClient = issueClient;
     }
 
-    public void createSubtasksWithRetry(List<IssueInput> subtasks) {
-        List<CompletableFuture<Void>> futures = subtasks.stream()
-            .map(subtask -> CompletableFuture.runAsync(() -> createSubtaskWithRetries(subtask)))
-            .toList();
+    public void createSubtasksSequentially(List<IssueInput> subtasks) {
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-        // Ожидание завершения всех задач
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        for (IssueInput subtask : subtasks) {
+            executor.submit(() -> createSubtaskWithRetries(subtask));
+        }
+
+        // Завершение работы ExecutorService
+        executor.shutdown();
+        try {
+            // Ожидание завершения всех задач
+            if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
+                executor.shutdownNow(); // Принудительное завершение, если не все задачи завершились
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt(); // Восстановление прерывания
+        }
     }
 
     private void createSubtaskWithRetries(IssueInput subtask) {
@@ -26,12 +49,12 @@ public class JiraIssueCreator {
                 // Попытка создать подзадачу
                 issueClient.createIssue(subtask).claim();
                 return; // Успех, выходим из метода
-            } catch (HttpClientErrorException e) {
-                if (e.getStatusCode().value() == 429) {
-                    // Обработка превышения лимита запросов
+            } catch (RestClientException e) {
+                // Обработка RestClientException
+                if (isRateLimitException(e)) {
                     lastRetryDelayMillis = handleRateLimit(e);
                 } else {
-                    // Обработка других ошибок
+                    // Логируем и обрабатываем другие ошибки
                     handleFailure(e);
                     return;
                 }
@@ -55,17 +78,18 @@ public class JiraIssueCreator {
         handleFailure(new Exception("Exceeded maximum retries for creating subtask: " + subtask.getSummary()));
     }
 
-    private long handleRateLimit(HttpClientErrorException e) {
+    private boolean isRateLimitException(RestClientException e) {
+        // Проверка, является ли исключение связано с превышением лимита запросов
+        // Вы можете дополнительно анализировать сообщение исключения или его код
+        return e.getMessage() != null && e.getMessage().contains("429");
+    }
+
+    private long handleRateLimit(RestClientException e) {
         long retryDelayMillis = INITIAL_RETRY_DELAY_MS;
 
-        // Извлечение заголовка Retry-After, если он есть
-        if (e.getResponseHeaders().containsKey("Retry-After")) {
-            String retryAfterValue = e.getResponseHeaders().get("Retry-After").get(0);
-            retryDelayMillis = Long.parseLong(retryAfterValue) * 1000; // Конвертация в миллисекунды
-        } else {
-            // Увеличиваем задержку, если заголовок отсутствует
-            retryDelayMillis = Math.min(2 * retryDelayMillis, MAX_RETRY_DELAY_MS);
-        }
+        // Логика обработки лимитов, если информация доступна
+        // Если нет доступа к заголовкам, используем базовый подход
+        retryDelayMillis = Math.min(2 * retryDelayMillis, MAX_RETRY_DELAY_MS);
 
         return retryDelayMillis;
     }
@@ -75,3 +99,4 @@ public class JiraIssueCreator {
         System.err.println("Failed to create subtask: " + e.getMessage());
     }
 }
+```
