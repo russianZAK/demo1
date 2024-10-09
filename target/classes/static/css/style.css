@@ -9,10 +9,13 @@
 
 body {
     height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: #f4f4f4;
+}
+
+section {
+    display: flex;
+    align-items: center; /* Вертикальное выравнивание по центру */
+    justify-content: center; /* Горизонтальное выравнивание по центру */
 }
 
 .login-container {
@@ -23,7 +26,7 @@ body {
     border-radius: 10px;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden;
-    margin: 0 20px;
+    margin-top: 20vh;
 }
 
 .login-container__forms {
@@ -85,6 +88,7 @@ body {
 
 .login-form__icon {
     color: #4070f4;
+
     position: absolute;
     top: 50%;
     transform: translateY(-50%);

@@ -1,0 +1,49 @@
+
+.header {
+    width: 100%;
+    background: linear-gradient(135deg, #4070f4, #2192ff); /* Градиент для заголовка */
+    padding: 20px 0; /* Больше отступов сверху и снизу */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Легкая тень для выделения заголовка */
+}
+
+.header__container {
+    max-width: 1200px; /* Увеличиваем ширину контейнера */
+    margin: 0 auto;
+    padding: 0 20px; /* Боковые отступы */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.navigation {
+    background: #fff;
+    border-radius: 12px; /* Более плавные закругления углов */
+    padding: 10px 20px; /* Больше отступов */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Мягкая тень */
+}
+
+.navigation__list {
+    display: flex;
+    justify-content: center; /* Центрирование навигации */
+    gap: 20px; /* Пробелы между элементами */
+    list-style: none;
+}
+
+.navigation__item {
+    position: relative;
+}
+
+.navigation__link {
+    font-size: 1.1rem; /* Увеличенный и аккуратный размер шрифта */
+    padding: 10px 15px; /* Больше пространства внутри ссылок */
+    color: #333;
+    text-decoration: none;
+    font-weight: 500; /* Полужирный текст */
+    position: relative;
+    transition: color 0.3s ease; /* Плавное изменение цвета */
+}
+
+
+.navigation__link:hover {
+    color: #4070f4; /* Изменение цвета текста при наведении */
+}

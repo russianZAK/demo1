@@ -5,136 +5,180 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" th:href="@{/css/task.css}">
     <script th:src="@{/js/task-form.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
     <title>Создание задачи</title>
 </head>
 <body>
-<div class="task-form">
-    <form class="task-form__form" th:action="@{/create-task}" th:object="${taskDto}" method="post">
-        <h2 class="task-form__title">Информация о задаче</h2>
+<div th:insert="fragments/header :: header"></div>
+<section class="container">
+    <div class="task-list">
+        <h2 class="task-list__title">Список созданных задач</h2>
+        <table class="task-list__table">
+            <thead>
+            <tr>
+                <th>Название задачи</th>
+                <th>Информация</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task : ${createdTasks}">
+                <td><a th:href="${task.link}" th:text="${task.title}"></a></td>
+                <td th:text="${task.info}">Информация</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="task-form">
+        <form class="task-form__form" th:action="@{/create-task}" th:object="${taskDto}" method="post">
+            <h2 class="task-form__title">Информация о задаче</h2>
 
-        <!-- Поле для ввода номера эпика -->
-        <div class="task-form__field">
-            <input class="task-form__input" type="text" placeholder="Epic number" name="epic" id="epic" required th:value="${param.epic}" onchange="checkEpic()"/>
-            <span class="task-form__validation" id="epic-validation"></span>
-        </div>
-
-        <!-- Поле для Change Request -->
-        <div class="task-form__field">
-            <input class="task-form__input" type="text" placeholder="Change Request" name="changeRequest" id="changeRequest" th:value="${param.changeRequest}" onchange="checkChangeRequest()"/>
-            <span class="task-form__validation" id="cr-validation"></span>
-        </div>
-
-        <!-- Поле для названия задачи -->
-        <div class="task-form__field">
-            <input class="task-form__input" type="text" placeholder="Task title" name="title" required th:value="${param.title}"/>
-        </div>
-
-        <!-- Поле для описания -->
-        <div class="task-form__field">
-            <textarea class="task-form__textarea" placeholder="Description" name="description" id="description" required th:value="${param.description}" style="resize: none;" rows="3" oninput="adjustHeight(this)"></textarea>
-        </div>
-
-        <!-- Поле для релизной задачи -->
-        <div class="task-form__field">
-            <input class="task-form__input" type="text" placeholder="Release Task" name="releaseTask" id="releaseTask" required th:value="${param.releaseTask}" onchange="checkReleaseTask()"/>
-            <span class="task-form__validation" id="release-validation"></span>
-        </div>
-
-        <h2 class="task-form__title">Выбор компонентов</h2>
-        <!-- Поле для выбора компонентов -->
-        <div class="task-form__field">
-            <input class="task-form__input" type="text" id="component-search" placeholder="Поиск компонентов..." oninput="filterComponents()" onfocus="showDropdown('component-list')" onblur="hideDropdown('component-list')" />
-            <ul id="component-list" class="task-form__dropdown">
-                <li class="task-form__dropdown-item" th:each="component : ${components}" th:attr="data-value=${component}" onclick="addComponent(this)" th:text="${component}"></li>
-            </ul>
-            <div id="selected-components" class="task-form__selected-components">
-                <!-- Здесь будут отображаться выбранные компоненты -->
+            <!-- Поле для ввода номера эпика -->
+            <div class="task-form__field">
+                <input class="task-form__input" type="text" placeholder="Epic number" name="epic" id="epic" required
+                       th:value="${param.epic}" onchange="checkEpic()"/>
+                <span class="task-form__validation" id="epic-validation"></span>
             </div>
-        </div>
 
-        <!-- Скрытые поля для отправки выбранных компонентов -->
-        <div id="selected-components-hidden" class="task-form__hidden">
-            <!-- Здесь будут скрытые input для выбранных компонентов -->
-        </div>
+            <!-- Поле для Change Request -->
+            <div class="task-form__field">
+                <input class="task-form__input" type="text" placeholder="Change Request" name="changeRequest"
+                       id="changeRequest" th:value="${param.changeRequest}" onchange="checkChangeRequest()"/>
+                <span class="task-form__validation" id="cr-validation"></span>
+            </div>
 
-        <h2 class="task-form__title">Выбор специалистов</h2>
+            <!-- Поле для названия задачи -->
+            <div class="task-form__field">
+                <input class="task-form__input" type="text" placeholder="Task title" name="title" required
+                       th:value="${param.title}"/>
+            </div>
 
-        <!-- Поле для выбора разработчика -->
-        <div class="task-form__field">
-            <div class="task-form__dropdown-container">
-                <input class="task-form__input" type="text" id="selected-developer" placeholder="Выбранный разработчик" required readonly onclick="toggleDropdown('developer-list')" />
-                <div id="developer-list" class="task-form__dropdown">
-                    <input class="task-form__input" type="text" id="developer-search" placeholder="Поиск разработчика..." oninput="filterDeveloper()" />
-                    <ul>
-                        <li class="task-form__dropdown-item" th:each="developer : ${developers}" th:attr="data-value=${developer}" onclick="selectDeveloper(this)" th:text="${developer}"></li>
-                    </ul>
+            <!-- Поле для описания -->
+            <div class="task-form__field">
+                <textarea class="task-form__textarea" placeholder="Description" name="description" id="description"
+                          required th:value="${param.description}" style="resize: none;" rows="3"
+                          oninput="adjustHeight(this)"></textarea>
+            </div>
+
+            <!-- Поле для релизной задачи -->
+            <div class="task-form__field">
+                <input class="task-form__input" type="text" placeholder="Release Task" name="releaseTask"
+                       id="releaseTask" required th:value="${param.releaseTask}" onchange="checkReleaseTask()"/>
+                <span class="task-form__validation" id="release-validation"></span>
+            </div>
+
+            <h2 class="task-form__title">Выбор компонентов</h2>
+            <!-- Поле для выбора компонентов -->
+            <div class="task-form__field">
+                <input class="task-form__input" type="text" id="component-search" placeholder="Поиск компонентов..."
+                       oninput="filterComponents()" onfocus="showDropdown('component-list')"
+                       onblur="hideDropdown('component-list')"/>
+                <ul id="component-list" class="task-form__dropdown">
+                    <li class="task-form__dropdown-item" th:each="component : ${components}"
+                        th:attr="data-value=${component}" onclick="addComponent(this)" th:text="${component}"></li>
+                </ul>
+                <div id="selected-components" class="task-form__selected-components">
+                    <!-- Здесь будут отображаться выбранные компоненты -->
                 </div>
             </div>
-        </div>
 
-        <!-- Скрытое поле для разработчика -->
-        <input type="hidden" name="developer" id="hidden-developer" />
+            <!-- Скрытые поля для отправки выбранных компонентов -->
+            <div id="selected-components-hidden" class="task-form__hidden">
+                <!-- Здесь будут скрытые input для выбранных компонентов -->
+            </div>
 
-        <!-- Поле для выбора тестировщика -->
-        <div class="task-form__field">
-            <div class="task-form__dropdown-container">
-                <input class="task-form__input" type="text" id="selected-tester" placeholder="Выбранный тестировщик" required readonly onclick="toggleDropdown('tester-list')" />
-                <div id="tester-list" class="task-form__dropdown">
-                    <input class="task-form__input" type="text" id="tester-search" placeholder="Поиск тестировщика..." oninput="filterTester()" />
-                    <ul>
-                        <li class="task-form__dropdown-item" th:each="tester : ${testers}" th:attr="data-value=${tester}" onclick="selectTester(this)" th:text="${tester}"></li>
-                    </ul>
+            <h2 class="task-form__title">Выбор специалистов</h2>
+
+            <!-- Поле для выбора разработчика -->
+            <div class="task-form__field">
+                <div class="task-form__dropdown-container">
+                    <input class="task-form__input" type="text" id="selected-developer"
+                           placeholder="Выбранный разработчик" required readonly
+                           onclick="toggleDropdown('developer-list')"/>
+                    <div id="developer-list" class="task-form__dropdown">
+                        <input class="task-form__input" type="text" id="developer-search"
+                               placeholder="Поиск разработчика..." oninput="filterDeveloper()"/>
+                        <ul>
+                            <li class="task-form__dropdown-item" th:each="developer : ${developers}"
+                                th:attr="data-value=${developer}" onclick="selectDeveloper(this)"
+                                th:text="${developer}"></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Скрытое поле для тестировщика -->
-        <input type="hidden" name="tester" id="hidden-tester" />
+            <!-- Скрытое поле для разработчика -->
+            <input type="hidden" name="developer" id="hidden-developer"/>
 
-        <!-- Поле для выбора аналитика -->
-        <div class="task-form__field">
-            <div class="task-form__dropdown-container">
-                <input class="task-form__input" type="text" id="selected-analyst" placeholder="Выбранный аналитик" required readonly onclick="toggleDropdown('analyst-list')" />
-                <div id="analyst-list" class="task-form__dropdown">
-                    <input class="task-form__input" type="text" id="analyst-search" placeholder="Поиск аналитика..." oninput="filterAnalyst()" />
-                    <ul>
-                        <li class="task-form__dropdown-item" th:each="analyst : ${analysts}" th:attr="data-value=${analyst}" onclick="selectAnalyst(this)" th:text="${analyst}"></li>
-                    </ul>
+            <!-- Поле для выбора тестировщика -->
+            <div class="task-form__field">
+                <div class="task-form__dropdown-container">
+                    <input class="task-form__input" type="text" id="selected-tester" placeholder="Выбранный тестировщик"
+                           required readonly onclick="toggleDropdown('tester-list')"/>
+                    <div id="tester-list" class="task-form__dropdown">
+                        <input class="task-form__input" type="text" id="tester-search"
+                               placeholder="Поиск тестировщика..." oninput="filterTester()"/>
+                        <ul>
+                            <li class="task-form__dropdown-item" th:each="tester : ${testers}"
+                                th:attr="data-value=${tester}" onclick="selectTester(this)" th:text="${tester}"></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Скрытое поле для аналитика -->
-        <input type="hidden" name="analyst" id="hidden-analyst" />
+            <!-- Скрытое поле для тестировщика -->
+            <input type="hidden" name="tester" id="hidden-tester"/>
 
-        <!-- Чекбоксы для выбора новой функциональности и НТ -->
-        <div class="task-form__field">
-            <label class="task-form__label">
-                <input class="task-form__checkbox" type="checkbox" id="new-functionality" name="newFunctionality" th:field="*{newFunctionality}">
-                Новая функциональность
-            </label>
-        </div>
+            <!-- Поле для выбора аналитика -->
+            <div class="task-form__field">
+                <div class="task-form__dropdown-container">
+                    <input class="task-form__input" type="text" id="selected-analyst" placeholder="Выбранный аналитик"
+                           required readonly onclick="toggleDropdown('analyst-list')"/>
+                    <div id="analyst-list" class="task-form__dropdown">
+                        <input class="task-form__input" type="text" id="analyst-search" placeholder="Поиск аналитика..."
+                               oninput="filterAnalyst()"/>
+                        <ul>
+                            <li class="task-form__dropdown-item" th:each="analyst : ${analysts}"
+                                th:attr="data-value=${analyst}" onclick="selectAnalyst(this)" th:text="${analyst}"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
-        <div class="task-form__field">
-            <label class="task-form__label">
-                <input class="task-form__checkbox" type="checkbox" id="nt-execution" name="nt" th:field="*{nt}">
-                Проведение НТ
-            </label>
-        </div>
+            <!-- Скрытое поле для аналитика -->
+            <input type="hidden" name="analyst" id="hidden-analyst"/>
 
-        <!-- Кнопка отправки -->
-        <div class="task-form__field task-form__field--button">
-            <input class="task-form__submit" type="submit" value="Создать задачу">
-        </div>
+            <!-- Чекбоксы для выбора новой функциональности и НТ -->
+            <div class="task-form__field">
+                <label class="task-form__label">
+                    <input class="task-form__checkbox" type="checkbox" id="new-functionality" name="newFunctionality"
+                           th:field="*{newFunctionality}">
+                    Новая функциональность
+                </label>
+            </div>
 
-        <!-- Сообщение об успехе или ошибке -->
-        <div class="task-form__success-message" th:if="${success}">
-            <p>Задача успешно создана! Номер задачи: <a th:href="${taskLink}" th:text="${taskLink}"></a></p>
-        </div>
-        <div class="task-form__error-message" th:if="${error}">
-            <p>Ошибка: <span th:text="${error}"></span></p>
-        </div>
-    </form>
-</div>
+            <div class="task-form__field">
+                <label class="task-form__label">
+                    <input class="task-form__checkbox" type="checkbox" id="nt-execution" name="nt" th:field="*{nt}">
+                    Проведение НТ
+                </label>
+            </div>
+
+            <!-- Кнопка отправки -->
+            <div class="task-form__field task-form__field--button">
+                <input class="task-form__submit" type="submit" value="Создать задачу">
+            </div>
+
+            <!-- Сообщение об успехе или ошибке -->
+            <div class="task-form__success-message" th:if="${success}">
+                <p>Задача успешно создана! Номер задачи: <a th:href="${taskLink}" th:text="${taskLink}"></a></p>
+            </div>
+            <div class="task-form__error-message" th:if="${error}">
+                <p>Ошибка: <span th:text="${error}"></span></p>
+            </div>
+        </form>
+    </div>
+    <div class="right-space"></div>
+</section>
 </body>
 </html>

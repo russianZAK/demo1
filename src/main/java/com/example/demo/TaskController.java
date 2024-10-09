@@ -9,8 +9,16 @@ import java.util.List;
 @Controller
 public class TaskController {
 
+    @GetMapping("/header")
+    public String showHeader(Model model) {
+        return "header";
+    }
+
     @GetMapping("/create-task")
     public String showTaskForm(Model model) {
+        model.addAttribute("createdTasks", List.of(new CreatedTasks("1", "Task 1", "Task 1 info"),
+                new CreatedTasks("2", "Task 2", "Task 2 info")));
+        model.addAttribute("user", new User("Nikita"));
         model.addAttribute("taskDto", new TaskDto());
         model.addAttribute("components", List.of("Frontend", "Backend", "Database", "API", "Mobile", "Desktop"));
         model.addAttribute("testers", List.of("Manual", "Automated"));
@@ -22,6 +30,7 @@ public class TaskController {
     @PostMapping("/create-task")
     public String createTask(@ModelAttribute TaskDto taskDto, Model model) {
         // Логика создания задачи
+        System.out.println(taskDto);
         model.addAttribute("success", true);
         model.addAttribute("taskId", "1");
         System.out.println(taskDto);

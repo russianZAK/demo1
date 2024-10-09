@@ -1,42 +1,49 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"/>
     <script th:src="@{/js/script.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+
     <title>Login Form</title>
 </head>
 <body>
-<div class="login-container">
-    <div class="login-container__forms">
-        <div class="login-container__form login-form">
-            <span class="login-form__title">Login</span>
+<header th:replace="fragments/header :: header"></header>
+<section>
+    <div class="login-container">
+        <div class="login-container__forms">
+            <div class="login-container__form login-form">
+                <span class="login-form__title">Login</span>
 
-            <form th:action="@{/login-success}" method="post">
-                <div class="login-form__input-field" th:classappend="${error} ? 'login-form__input-field--error'">
-                    <input type="text" class="login-form__input" placeholder="Enter your Jira login" name="username" required th:value="${param.username}" />
-                    <i class="login-form__icon uil uil-user"></i>
-                </div>
+                <form th:action="@{/login-success}" method="post">
+                    <div class="login-form__input-field" th:classappend="${error} ? 'login-form__input-field--error'">
+                        <input type="text" class="login-form__input" placeholder="Enter your Jira login" name="username"
+                               required th:value="${param.username}"/>
+                        <i class="login-form__icon uil uil-user"></i>
+                    </div>
 
-                <div class="login-form__input-field" th:classappend="${error} ? 'login-form__input-field--error'">
-                    <input id="password-field" type="password" class="login-form__input" placeholder="Enter your password" name="password" required />
-                    <i id="toggle-password" class="login-form__icon login-form__icon--toggle uil uil-eye-slash"></i>
-                    <i class="login-form__icon uil uil-lock"></i>
-                </div>
-                
-                <div class="login-form__button">
-                    <input type="submit" class="login-form-button__input" value="Login" />
-                </div>
+                    <div class="login-form__input-field" th:classappend="${error} ? 'login-form__input-field--error'">
+                        <input id="password-field" type="password" class="login-form__input"
+                               placeholder="Enter your password" name="password" required/>
+                        <i id="toggle-password" class="login-form__icon login-form__icon--toggle uil uil-eye-slash"></i>
+                        <i class="login-form__icon uil uil-lock"></i>
+                    </div>
 
-                <div class="login-form__error-message" th:if="${error}">
-                    <p>Invalid username or password!</p>
-                </div>
-            </form>
+                    <div class="login-form__button">
+                        <input type="submit" class="login-form-button__input" value="Login"/>
+                    </div>
+
+                    <div class="login-form__error-message" th:if="${error}">
+                        <p>Invalid username or password!</p>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+</section>
 </body>
 </html>
